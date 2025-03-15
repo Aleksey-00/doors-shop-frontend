@@ -1,8 +1,11 @@
+import { useRuntimeConfig } from '#app'
+
 export const useApi = () => {
   const config = useRuntimeConfig();
+  const baseURL = config.public.apiBase;
   
   const fetchApi = async (endpoint: string, options: any = {}) => {
-    const url = `${config.public.apiBase}${endpoint}`;
+    const url = `${baseURL}${endpoint}`;
     
     const defaultOptions = {
       credentials: 'include',
@@ -35,14 +38,31 @@ export const useApi = () => {
     }
   };
 
+  const get = async (endpoint: string) => {
+    return await fetch(`${baseURL}${endpoint}`)
+      .then(res => res.json())
+  };
+  
+  const post = async (endpoint: string, data: any) => {
+    return await fetch(`${baseURL}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }).then(res => res.json())
+  };
+
+  const put = (endpoint: string, data: any, options = {}) => 
+    fetchApi(endpoint, { ...options, method: 'PUT', body: JSON.stringify(data) });
+
+  const remove = (endpoint: string, options = {}) => 
+    fetchApi(endpoint, { ...options, method: 'DELETE' });
+
   return {
-    get: (endpoint: string, options = {}) => 
-      fetchApi(endpoint, { ...options, method: 'GET' }),
-    post: (endpoint: string, data: any, options = {}) => 
-      fetchApi(endpoint, { ...options, method: 'POST', body: JSON.stringify(data) }),
-    put: (endpoint: string, data: any, options = {}) => 
-      fetchApi(endpoint, { ...options, method: 'PUT', body: JSON.stringify(data) }),
-    delete: (endpoint: string, options = {}) => 
-      fetchApi(endpoint, { ...options, method: 'DELETE' }),
+    get,
+    post,
+    put,
+    remove,
   };
 }; 
