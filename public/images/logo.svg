@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Door Frame -->
+  <rect x="10" y="5" width="40" height="50" rx="2" fill="#0284c7"/>
+  
+  <!-- Door Panel -->
+  <rect x="15" y="10" width="30" height="40" rx="1" fill="#e0f2fe"/>
+  
+  <!-- Door Handle -->
+  <circle cx="40" cy="30" r="3" fill="#0284c7"/>
+  
+  <!-- Text "ЕВРО" -->
+  <text x="60" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#0284c7">
+    ЕВРО
+  </text>
+  
+  <!-- Text "ДВЕРИ" -->
+  <text x="60" y="50" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#075985">
+    ДВЕРИ
+  </text>
+  
+  <!-- Quality Stars -->
+  <path d="M130,15 L132,20 L137,20 L133,23 L135,28 L130,25 L125,28 L127,23 L123,20 L128,20 Z" fill="#0ea5e9"/>
+  <path d="M145,15 L147,20 L152,20 L148,23 L150,28 L145,25 L140,28 L142,23 L138,20 L143,20 Z" fill="#0ea5e9"/>
+  <path d="M160,15 L162,20 L167,20 L163,23 L165,28 L160,25 L155,28 L157,23 L153,20 L158,20 Z" fill="#0ea5e9"/>
+</svg> 
