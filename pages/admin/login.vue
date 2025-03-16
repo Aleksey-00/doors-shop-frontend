@@ -52,6 +52,11 @@ import { ref } from 'vue'
 import { useSecureApi } from '~/composables/useSecureApi'
 import CryptoJS from 'crypto-js'
 
+// Определяем макет для страницы
+definePageMeta({
+  layout: 'admin'
+})
+
 const router = useRouter()
 const email = ref('')
 const password = ref('')

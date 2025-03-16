@@ -1,12 +1,13 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <!-- Header -->
+    <!-- Header без навигационных элементов -->
     <header class="bg-white shadow">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
-          <NuxtLink to="/" class="hover:opacity-90 transition-opacity">
+          <div class="flex items-center">
             <img src="/images/logo.svg" alt="Евро Двери" class="h-12" />
-          </NuxtLink>
+            <span class="ml-4 text-xl font-bold">Админ-панель</span>
+          </div>
         </div>
       </div>
     </header>
@@ -22,9 +23,7 @@
     <footer class="bg-gray-800 text-white mt-auto">
       <div class="container mx-auto px-4 py-6">
         <div class="flex items-center justify-center">
-          <NuxtLink to="/" class="hover:opacity-90 transition-opacity">
-            <img src="/images/logo.svg" alt="Евро Двери" class="h-8 mr-2 brightness-200" />
-          </NuxtLink>
+          <img src="/images/logo.svg" alt="Евро Двери" class="h-8 mr-2 brightness-200" />
           <p>&copy; 2024 Магазин дверей евро качества. Все права защищены.</p>
         </div>
       </div>
