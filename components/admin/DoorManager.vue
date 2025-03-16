@@ -294,14 +294,22 @@
           <button
             @click="closePriceModal"
             class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            :disabled="isUpdatingPrices"
           >
             Отмена
           </button>
           <button
             @click="updatePrices"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center min-w-[100px]"
+            :disabled="isUpdatingPrices"
           >
-            Применить
+            <span v-if="isUpdatingPrices" class="inline-block mr-2">
+              <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
+            {{ isUpdatingPrices ? 'Обновление...' : 'Применить' }}
           </button>
         </div>
       </div>
@@ -344,14 +352,22 @@
           <button
             @click="closeTitleModal"
             class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            :disabled="isUpdatingTitles"
           >
             Отмена
           </button>
           <button
             @click="updateTitles"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center min-w-[100px]"
+            :disabled="isUpdatingTitles"
           >
-            Применить
+            <span v-if="isUpdatingTitles" class="inline-block mr-2">
+              <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
+            {{ isUpdatingTitles ? 'Обновление...' : 'Применить' }}
           </button>
         </div>
       </div>
@@ -406,6 +422,12 @@ const notification = ref({
 const alertMessage = ref('')
 const alertType = ref<'success' | 'error' | 'info'>('success')
 const showAlert = ref(false)
+
+// Добавляем состояние загрузки
+const isUpdatingPrices = ref(false)
+
+// Добавляем состояние загрузки для обновления заголовков
+const isUpdatingTitles = ref(false)
 
 const loadCategories = async () => {
   try {
@@ -518,6 +540,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 const updatePrices = async () => {
   try {
+    isUpdatingPrices.value = true;
     // Используем fetch напрямую вместо api.post
     const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-prices`, {
       method: 'POST',
@@ -543,6 +566,8 @@ const updatePrices = async () => {
   } catch (error) {
     console.error('Error updating prices:', error);
     showNotification('Произошла ошибка при обновлении цен', 'error');
+  } finally {
+    isUpdatingPrices.value = false;
   }
 }
 
@@ -562,6 +587,7 @@ const closeTitleModal = () => {
 
 const updateTitles = async () => {
   try {
+    isUpdatingTitles.value = true;
     // Используем fetch напрямую вместо api.post
     const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-titles`, {
       method: 'POST',
@@ -588,6 +614,8 @@ const updateTitles = async () => {
   } catch (error) {
     console.error('Error updating titles:', error);
     showNotification('Произошла ошибка при обновлении названий', 'error');
+  } finally {
+    isUpdatingTitles.value = false;
   }
 }
 
