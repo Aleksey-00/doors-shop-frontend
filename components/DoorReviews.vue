@@ -4,6 +4,11 @@ import { computed, ref } from 'vue'
 import starFilledIcon from '~/assets/icons/star-filled.svg'
 import starEmptyIcon from '~/assets/icons/star-empty.svg'
 
+defineOptions({
+  name: 'DoorReviews',
+  cachePolicy: 'no-cache'
+})
+
 const currentSlide = ref(0)
 
 const prevSlide = () => {

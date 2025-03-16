@@ -117,15 +117,6 @@ defineExpose({
           </div>
         </article>
       </div>
-
-      <div class="text-center mt-8 sm:mt-12">
-        <a 
-          href="/blog" 
-          class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-sm sm:text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-        >
-          Все статьи
-        </a>
-      </div>
     </div>
   </section>
 </template> 

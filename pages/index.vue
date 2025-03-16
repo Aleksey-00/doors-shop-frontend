@@ -186,13 +186,17 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Reviews Section -->
-    <DoorReviews class="mt-8 sm:mt-12 lg:mt-16" />
+    <!-- Отзывы клиентов - убедимся, что компонент вызывается только один раз -->
+    <ClientOnly>
+      <DoorReviews :key="'reviews-' + Date.now()" class="mt-8 sm:mt-12 lg:mt-16" />
+    </ClientOnly>
 
     <!-- FAQ Section -->
     <DoorFAQ class="mt-8 sm:mt-12 lg:mt-16" />
 
-    <!-- Blog Section -->
-    <DoorBlog class="mt-8 sm:mt-12 lg:mt-16" />
+    <!-- Blog Section - убедимся, что компонент вызывается только один раз -->
+    <ClientOnly>
+      <DoorBlog class="mt-8 sm:mt-12 lg:mt-16" />
+    </ClientOnly>
   </div>
 </template>

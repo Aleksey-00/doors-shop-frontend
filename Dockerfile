@@ -11,12 +11,12 @@ RUN npm ci
 # Копируем исходный код
 COPY . .
 
+# Очищаем кеш и собираем приложение
+RUN npm run predeploy && npm run build
+
 # Устанавливаем переменные окружения для сборки
 ENV NODE_ENV=production
 ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app:8080
-
-# Собираем приложение
-RUN npm run build
 
 # Этап запуска
 FROM node:20-alpine AS runtime
