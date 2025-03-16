@@ -13,7 +13,7 @@ COPY . .
 
 # Устанавливаем переменные окружения для сборки
 ENV NODE_ENV=production
-ENV NUXT_PUBLIC_API_BASE=http://doors-shop-backend-production.up.railway.app:9090
+ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app:8080
 
 # Собираем приложение
 RUN npm run build
@@ -32,7 +32,7 @@ COPY --from=build /app/package.json /app/package.json
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
-ENV NUXT_PUBLIC_API_BASE=http://doors-shop-backend-production.up.railway.app:9090
+ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app:8080
 
 # Открываем порт
 EXPOSE 3000
