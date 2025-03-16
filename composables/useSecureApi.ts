@@ -5,6 +5,9 @@ export const useSecureApi = () => {
   
   // Функция для обеспечения HTTPS в URL
   const ensureHttps = (url: string) => {
+    // Удаляем любые упоминания портов
+    url = url.replace(/:\d+/, '');
+    
     if (process.env.NODE_ENV === 'production' && url.startsWith('http:')) {
       return url.replace('http:', 'https:');
     }

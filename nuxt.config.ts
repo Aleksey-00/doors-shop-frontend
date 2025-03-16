@@ -103,7 +103,9 @@ export default defineNuxtConfig({
     timing: true,
     devProxy: {
       '/api': {
-        target: process.env.API_BASE_URL || 'http://localhost:3001',
+        target: process.env.NODE_ENV === 'production' 
+        ? 'https://doors-shop-backend-production.up.railway.app' 
+        :process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001',
         changeOrigin: true,
         secure: process.env.NODE_ENV === 'production'
       }
