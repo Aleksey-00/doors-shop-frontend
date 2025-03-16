@@ -16,7 +16,7 @@ RUN npm run predeploy && npm run build
 
 # Устанавливаем переменные окружения для сборки
 ENV NODE_ENV=production
-ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app:8080
+ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app
 
 # Этап запуска
 FROM node:20-alpine AS runtime
@@ -32,7 +32,7 @@ COPY --from=build /app/package.json /app/package.json
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
-ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app:8080
+ENV NUXT_PUBLIC_API_BASE=https://doors-shop-backend-production.up.railway.app
 
 # Открываем порт
 EXPOSE 3000
