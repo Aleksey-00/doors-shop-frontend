@@ -519,7 +519,7 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 const updatePrices = async () => {
   try {
     // Используем fetch напрямую вместо api.post
-    const response = await fetch(`${config.public.apiBaseUrl}/api/doors/update-prices`, {
+    const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-prices`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -563,7 +563,7 @@ const closeTitleModal = () => {
 const updateTitles = async () => {
   try {
     // Используем fetch напрямую вместо api.post
-    const response = await fetch(`${config.public.apiBaseUrl}/api/doors/update-titles`, {
+    const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-titles`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
