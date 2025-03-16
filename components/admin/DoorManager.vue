@@ -518,26 +518,31 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 const updatePrices = async () => {
   try {
-    const response = await api.post('/api/doors/update-prices', {
-      category: selectedCategory.value,
-      increasePercent: priceIncreasePercent.value
-    }, {
+    // Используем fetch напрямую вместо api.post
+    const response = await fetch(`${config.public.apiBaseUrl}/api/doors/update-prices`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
-    })
+      body: JSON.stringify({
+        category: selectedCategory.value,
+        increasePercent: priceIncreasePercent.value
+      })
+    });
     
-    if (response.ok) {
-      await loadDoors()
-      closePriceModal()
-      showNotification(`Цены успешно обновлены для категории "${selectedCategoryName.value}"`)
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      await loadDoors();
+      closePriceModal();
+      showNotification(data.message || `Цены успешно обновлены для категории "${selectedCategoryName.value}"`);
     } else {
-      const errorData = await response.json()
-      showNotification(errorData.message || 'Ошибка при обновлении цен', 'error')
+      showNotification(data.message || 'Ошибка при обновлении цен', 'error');
     }
   } catch (error) {
-    console.error('Error updating prices:', error)
-    showNotification('Произошла ошибка при обновлении цен', 'error')
+    console.error('Error updating prices:', error);
+    showNotification('Произошла ошибка при обновлении цен', 'error');
   }
 }
 
@@ -557,27 +562,32 @@ const closeTitleModal = () => {
 
 const updateTitles = async () => {
   try {
-    const response = await api.post('/api/doors/update-titles', {
-      category: selectedCategory.value,
-      searchText: titleSearchText.value,
-      replaceText: titleReplaceText.value,
-    }, {
+    // Используем fetch напрямую вместо api.post
+    const response = await fetch(`${config.public.apiBaseUrl}/api/doors/update-titles`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
-    })
+      body: JSON.stringify({
+        category: selectedCategory.value,
+        searchText: titleSearchText.value,
+        replaceText: titleReplaceText.value,
+      })
+    });
     
-    if (response && response.success) {
-      await loadDoors()
-      closeTitleModal()
-      showNotification(`Названия успешно обновлены для категории "${selectedCategoryName.value}"`)
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      await loadDoors();
+      closeTitleModal();
+      showNotification(data.message || `Названия успешно обновлены для категории "${selectedCategoryName.value}"`);
     } else {
-      showNotification(response?.message || 'Ошибка при обновлении названий', 'error')
+      showNotification(data.message || 'Ошибка при обновлении названий', 'error');
     }
   } catch (error) {
-    console.error('Error updating titles:', error)
-    showNotification('Произошла ошибка при обновлении названий', 'error')
+    console.error('Error updating titles:', error);
+    showNotification('Произошла ошибка при обновлении названий', 'error');
   }
 }
 
