@@ -301,18 +301,20 @@
           <button
             @click="updatePrices"
             :class="[
-              'px-4 py-2 text-white rounded-md flex items-center justify-center min-w-[120px]',
-              isUpdatingPrices ? 'bg-blue-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              'px-4 py-2 text-white rounded-md flex items-center justify-center min-w-[140px] transition-colors',
+              isUpdatingPrices ? 'bg-yellow-500 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
             ]"
             :disabled="isUpdatingPrices"
           >
-            <span v-if="isUpdatingPrices" class="inline-block mr-2">
-              <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <template v-if="isUpdatingPrices">
+              <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            </span>
-            {{ isUpdatingPrices ? 'Обновление...' : 'Применить' }}
+            </template>
+            <template v-else>
+              <span class="font-medium">Применить</span>
+            </template>
           </button>
         </div>
       </div>
@@ -362,18 +364,20 @@
           <button
             @click="updateTitles"
             :class="[
-              'px-4 py-2 text-white rounded-md flex items-center justify-center min-w-[120px]',
-              isUpdatingTitles ? 'bg-blue-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              'px-4 py-2 text-white rounded-md flex items-center justify-center min-w-[140px] transition-colors',
+              isUpdatingTitles ? 'bg-yellow-500 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
             ]"
             :disabled="isUpdatingTitles"
           >
-            <span v-if="isUpdatingTitles" class="inline-block mr-2">
-              <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <template v-if="isUpdatingTitles">
+              <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            </span>
-            {{ isUpdatingTitles ? 'Обновление...' : 'Применить' }}
+            </template>
+            <template v-else>
+              <span class="font-medium">Применить</span>
+            </template>
           </button>
         </div>
       </div>
@@ -545,9 +549,11 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 }
 
 const updatePrices = async () => {
+  // Устанавливаем состояние загрузки перед всеми операциями
+  isUpdatingPrices.value = true;
+  console.log('Начало обновления цен, isUpdatingPrices =', isUpdatingPrices.value);
+  
   try {
-    isUpdatingPrices.value = true;
-    console.log('Начало обновления цен, isUpdatingPrices =', isUpdatingPrices.value);
     // Используем fetch напрямую вместо api.post
     const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-prices`, {
       method: 'POST',
@@ -574,6 +580,7 @@ const updatePrices = async () => {
     console.error('Error updating prices:', error);
     showNotification('Произошла ошибка при обновлении цен', 'error');
   } finally {
+    // Устанавливаем состояние загрузки в false после всех операций
     isUpdatingPrices.value = false;
     console.log('Завершение обновления цен, isUpdatingPrices =', isUpdatingPrices.value);
   }
@@ -594,9 +601,11 @@ const closeTitleModal = () => {
 }
 
 const updateTitles = async () => {
+  // Устанавливаем состояние загрузки перед всеми операциями
+  isUpdatingTitles.value = true;
+  console.log('Начало обновления заголовков, isUpdatingTitles =', isUpdatingTitles.value);
+  
   try {
-    isUpdatingTitles.value = true;
-    console.log('Начало обновления заголовков, isUpdatingTitles =', isUpdatingTitles.value);
     // Используем fetch напрямую вместо api.post
     const response = await fetch(`https://doors-shop-backend-production.up.railway.app/api/doors/update-titles`, {
       method: 'POST',
@@ -624,6 +633,7 @@ const updateTitles = async () => {
     console.error('Error updating titles:', error);
     showNotification('Произошла ошибка при обновлении названий', 'error');
   } finally {
+    // Устанавливаем состояние загрузки в false после всех операций
     isUpdatingTitles.value = false;
     console.log('Завершение обновления заголовков, isUpdatingTitles =', isUpdatingTitles.value);
   }
