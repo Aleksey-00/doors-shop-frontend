@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSecureApi } from '~/composables/useSecureApi'
+import CryptoJS from 'crypto-js'
 
 const router = useRouter()
 const email = ref('')
@@ -64,9 +65,12 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
+    // Хешируем пароль перед отправкой
+    const hashedPassword = CryptoJS.SHA256(password.value).toString()
+
     const data = await api.post('/api/auth/login', {
       email: email.value,
-      password: password.value,
+      password: hashedPassword,
     })
 
     if (!data || data.error) {

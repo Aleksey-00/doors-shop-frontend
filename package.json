@@ -15,6 +15,8 @@
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/robots": "^5.2.6",
     "@nuxtjs/sitemap": "^7.2.7",
+    "@types/crypto-js": "^4.2.2",
+    "crypto-js": "^4.2.0",
     "maska": "^3.1.0",
     "nuxt": "^3.16.0",
     "nuxt-simple-sitemap": "^4.4.1",
