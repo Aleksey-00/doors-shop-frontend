@@ -10,15 +10,15 @@
           <button
             v-for="category in categories"
             :key="category.id"
-            @click="$emit('update:category', category.id === selectedCategory ? '' : category.id)"
+            @click="$emit('update:category', String(category.id) === selectedCategory ? '' : String(category.id))"
             class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors relative"
-            :class="category.id === selectedCategory 
+            :class="String(category.id) === selectedCategory 
               ? 'bg-blue-50 text-blue-700 font-medium' 
               : 'hover:bg-gray-50 text-gray-700'"
           >
             {{ category.name }}
             <span 
-              v-if="category.id === selectedCategory"
+              v-if="String(category.id) === selectedCategory"
               class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-600 rounded-full"
             />
           </button>
@@ -125,8 +125,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import chevronDownIcon from '~/assets/icons/chevron-down.svg'
+import { useSecureApi } from '~/composables/useSecureApi'
+import type { Category } from '~/types/category'
 
 // Props
 const props = defineProps<{
@@ -144,19 +146,30 @@ const filters = ref({
   minPrice: '',
   maxPrice: '',
   inStock: false,
-  sort: 'popular'
+  sort: 'popular' as 'popular' | 'price_asc' | 'price_desc' | 'new'
 })
 
-// Mock categories (replace with real data)
-const categories = [
-  { id: 'premium', name: 'Премиум' },
-  { id: 'standard', name: 'Стандарт' },
-  { id: 'economy', name: 'Эконом' }
-]
+const api = useSecureApi()
+const categories = ref<Category[]>([])
+
+// Загрузка категорий с сервера
+const loadCategories = async () => {
+  try {
+    const response = await api.get('/api/categories')
+    categories.value = response || []
+  } catch (error) {
+    console.error('Error loading categories:', error)
+    categories.value = []
+  }
+}
+
+onMounted(() => {
+  loadCategories()
+})
 
 const isOpen = ref(false)
 
-const sortLabels = {
+const sortLabels: Record<'popular' | 'price_asc' | 'price_desc' | 'new', string> = {
   popular: 'По популярности',
   price_asc: 'Сначала дешевле',
   price_desc: 'Сначала дороже',
@@ -164,14 +177,15 @@ const sortLabels = {
 }
 
 const selectOption = (value: string) => {
-  filters.value.sort = value
+  filters.value.sort = value as 'popular' | 'price_asc' | 'price_desc' | 'new'
   isOpen.value = false
 }
 
 // Close dropdown when clicking outside
 if (typeof window !== 'undefined') {
   window.addEventListener('click', (e) => {
-    if (!e.target?.closest('.relative')) {
+    const target = e.target as HTMLElement;
+    if (!target?.closest?.('.relative')) {
       isOpen.value = false
     }
   })

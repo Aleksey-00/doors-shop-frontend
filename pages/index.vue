@@ -11,6 +11,8 @@ import type { Door, DoorsResponse, DoorFilters as DoorFiltersType } from '~/type
 import { useHead, useRoute } from '#imports'
 import filterIcon from '~/assets/icons/filter.svg'
 import closeIcon from '~/assets/icons/close.svg'
+import { useRuntimeConfig } from '#app'
+import { useSecureApi } from '~/composables/useSecureApi'
 
 const config = useRuntimeConfig()
 const route = useRoute()
@@ -45,7 +47,7 @@ useHead({
 const fetchDoors = async () => {
   loading.value = true
   try {
-    const filters: DoorFiltersType = {
+    const filters = {
       page: currentPage.value,
       limit: 12,
       ...activeFilters.value,
@@ -59,13 +61,15 @@ const fetchDoors = async () => {
       }
     })
     
-    const response = await fetch(`${config.public.apiBase}/api/doors?${queryParams.toString()}`)
-    if (!response.ok) {
+    const api = useSecureApi()
+    const response = await api.get(`/api/doors?${queryParams.toString()}`)
+    
+    if (!response) {
       throw new Error('Failed to fetch doors')
     }
-    const data: DoorsResponse = await response.json()
-    doors.value = data.doors || []
-    totalPages.value = data.totalPages || 1
+    
+    doors.value = response.doors || []
+    totalPages.value = response.totalPages || 1
   } catch (error) {
     console.error('Error fetching doors:', error)
     doors.value = []

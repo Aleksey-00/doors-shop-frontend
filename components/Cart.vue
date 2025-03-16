@@ -133,7 +133,7 @@ import { ref, computed, onMounted } from 'vue'
 import type { Door } from '~/types/door'
 import { Mask } from 'maska'
 import { useRuntimeConfig } from '#app'
-import { useApi } from '~/utils/api'
+import { useSecureApi } from '~/composables/useSecureApi'
 
 const config = useRuntimeConfig()
 
@@ -269,7 +269,7 @@ const submitOrder = async () => {
 
     console.log('Отправка заказа:', orderData)
 
-    const api = useApi()
+    const api = useSecureApi()
     const result = await api.post('/api/orders', orderData)
     console.log('Заказ успешно создан:', result)
 

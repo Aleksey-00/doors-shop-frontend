@@ -2,7 +2,21 @@ import { useRuntimeConfig } from '#app'
 
 export const useApi = () => {
   const config = useRuntimeConfig();
-  const baseURL = config.public.apiBase;
+  
+  // Получаем базовый URL из конфигурации
+  let baseURL = config.public.apiBase;
+  
+  // Проверяем, находимся ли мы в продакшен-окружении и преобразуем HTTP в HTTPS
+  if (process.env.NODE_ENV === 'production' && baseURL.startsWith('http:')) {
+    baseURL = baseURL.replace('http:', 'https:');
+    console.log('Converted API base URL to HTTPS:', baseURL);
+  }
+  
+  // Проверяем, запущено ли приложение по HTTPS, и если да, то принудительно используем HTTPS для API
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && baseURL.startsWith('http:')) {
+    baseURL = baseURL.replace('http:', 'https:');
+    console.log('Forced HTTPS for API due to secure page context:', baseURL);
+  }
   
   const fetchApi = async (endpoint: string, options: any = {}) => {
     const url = `${baseURL}${endpoint}`;

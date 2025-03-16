@@ -1,15 +1,13 @@
 import type { Category } from '~/types/category'
+import { useSecureApi } from '~/composables/useSecureApi'
 
 export const useCategories = () => {
-  const config = useRuntimeConfig()
+  const api = useSecureApi()
 
   const fetchCategories = async (): Promise<Category[]> => {
     try {
-      const response = await fetch(`${config.public.apiBase}/api/categories`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories')
-      }
-      return response.json()
+      const data = await api.get('/api/categories')
+      return data || []
     } catch (error) {
       console.error('Error fetching categories:', error)
       return []

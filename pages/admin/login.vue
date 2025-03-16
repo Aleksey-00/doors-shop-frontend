@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useSecureApi } from '~/composables/useSecureApi'
 
 const router = useRouter()
 const email = ref('')
@@ -56,34 +57,25 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const config = useRuntimeConfig()
+const api = useSecureApi()
 
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
 
   try {
-    const response = await fetch(`${config.public.apiBase}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value,
-      }),
+    const data = await api.post('/api/auth/login', {
+      email: email.value,
+      password: password.value,
     })
 
-    const data = await response.json()
-
-    if (!response.ok) {
+    if (!data || data.error) {
       throw new Error(data.message || 'Неверный email или пароль')
     }
 
     localStorage.setItem('admin_token', data.access_token)
     navigateTo('/admin/dashboard')
-  } catch (e) {
+  } catch (e: any) {
     console.error('Login error:', e)
     error.value = e.message || 'Ошибка при входе. Пожалуйста, попробуйте снова.'
   } finally {

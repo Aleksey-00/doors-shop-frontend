@@ -23,13 +23,15 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/images/favicon.svg' },
-        { rel: 'canonical', href: 'https://your-domain.com' }
+        { rel: 'canonical', href: 'https://moos-doors.ru' }
       ]
     }
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001'
+      apiBase: process.env.NODE_ENV === 'production' 
+        ? (process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001').replace(/^http:/, 'https:')
+        : (process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001')
     }
   },
   modules: [
@@ -80,7 +82,7 @@ export default defineNuxtConfig({
     preconnect: true
   },
   site: {
-    url: 'https://your-domain.com'
+    url: 'https://moos-doors.ru'
   },
   sitemap: {
     urls: [
@@ -103,6 +105,7 @@ export default defineNuxtConfig({
       '/api': {
         target: process.env.API_BASE_URL || 'http://localhost:3001',
         changeOrigin: true,
+        secure: process.env.NODE_ENV === 'production'
       }
     }
   },

@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRuntimeConfig } from '#app'
+import { useSecureApi } from '~/composables/useSecureApi'
 
 interface Order {
   id: string;
@@ -142,17 +143,19 @@ interface Order {
 }
 
 const config = useRuntimeConfig()
+const api = useSecureApi()
 const orders = ref<Order[]>([])
 const selectedOrder = ref<Order | null>(null)
 
 const loadOrders = async () => {
   try {
-    const response = await fetch(`${config.public.apiBase}/api/orders`, {
+    const token = localStorage.getItem('admin_token')
+    const data = await api.get('/api/orders', {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
-      },
+        'Authorization': `Bearer ${token}`,
+      }
     })
-    orders.value = await response.json()
+    orders.value = data
   } catch (error) {
     console.error('Error loading orders:', error)
   }
@@ -160,14 +163,10 @@ const loadOrders = async () => {
 
 const updateOrderStatus = async (order: Order) => {
   try {
-    await fetch(`${config.public.apiBase}/api/orders/${order.id}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
-      },
-      body: JSON.stringify({ status: order.status }),
-    })
+    const headers = {
+      'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+    }
+    await api.put(`/api/orders/${order.id}/status`, { status: order.status }, { headers })
   } catch (error) {
     console.error('Error updating order status:', error)
   }

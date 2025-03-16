@@ -359,12 +359,14 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRuntimeConfig } from '#app'
+import { useSecureApi } from '~/composables/useSecureApi'
 import type { Category } from '~/types/category'
 import type { Door } from '~/types/door'
 import DoorPagination from '~/components/DoorPagination.vue'
 import Alert from '~/components/Alert.vue'
 
 const config = useRuntimeConfig()
+const api = useSecureApi()
 const categories = ref<Category[]>([])
 const doors = ref<Door[]>([])
 const currentPage = ref(1)
@@ -404,8 +406,8 @@ const showAlert = ref(false)
 
 const loadCategories = async () => {
   try {
-    const response = await fetch(`${config.public.apiBase}/api/categories`)
-    categories.value = await response.json()
+    const data = await api.get('/api/categories')
+    categories.value = data
   } catch (error) {
     console.error('Error loading categories:', error)
   }
@@ -413,15 +415,14 @@ const loadCategories = async () => {
 
 const loadDoors = async () => {
   try {
-    let url = `${config.public.apiBase}/api/doors?page=${currentPage.value}&limit=${itemsPerPage}`
+    let endpoint = `/api/doors?page=${currentPage.value}&limit=${itemsPerPage}`
     
     // Добавляем параметр поиска по категории, если есть запрос
     if (categorySearchQuery.value) {
-      url += `&category=${categorySearchQuery.value}`
+      endpoint += `&category=${categorySearchQuery.value}`
     }
     
-    const response = await fetch(url)
-    const data = await response.json()
+    const data = await api.get(endpoint)
     doors.value = data.doors
     totalPages.value = data.totalPages
   } catch (error) {
@@ -437,16 +438,13 @@ const handleSubmit = async () => {
       imageUrls: imageUrlsInput ? imageUrlsInput.split(',').map(url => url.trim()).filter(Boolean) : []
     }
 
-    const response = await fetch(`${config.public.apiBase}/api/doors`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
-      },
-      body: JSON.stringify(doorData),
-    })
+    const headers = {
+      'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+    }
     
-    if (response.ok) {
+    const response = await api.post('/api/doors', doorData, { headers })
+    
+    if (response) {
       newDoor.value = {
         title: '',
         category: '',
@@ -468,10 +466,9 @@ const deleteDoor = async (id: string) => {
   }
 
   try {
-    const response = await fetch(`${config.public.apiBase}/api/doors/${id}`, {
-      method: 'DELETE',
+    const response = await api.remove(`/api/doors/${id}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
     })
     
@@ -518,16 +515,13 @@ const showNotification = (message: string, type: 'success' | 'error' | 'info' = 
 
 const updatePrices = async () => {
   try {
-    const response = await fetch(`${config.public.apiBase}/api/doors/update-prices`, {
-      method: 'POST',
+    const response = await api.post('/api/doors/update-prices', {
+      category: selectedCategory.value,
+      increasePercent: priceIncreasePercent.value
+    }, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
-      body: JSON.stringify({
-        category: selectedCategory.value,
-        increasePercent: priceIncreasePercent.value
-      }),
     })
     
     if (response.ok) {
@@ -560,17 +554,14 @@ const closeTitleModal = () => {
 
 const updateTitles = async () => {
   try {
-    const response = await fetch(`${config.public.apiBase}/api/doors/update-titles`, {
-      method: 'POST',
+    const response = await api.post('/api/doors/update-titles', {
+      category: selectedCategory.value,
+      searchText: titleSearchText.value,
+      replaceText: titleReplaceText.value,
+    }, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
-      body: JSON.stringify({
-        category: selectedCategory.value,
-        searchText: titleSearchText.value,
-        replaceText: titleReplaceText.value,
-      }),
     })
     
     if (response.ok) {
