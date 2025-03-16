@@ -568,13 +568,12 @@ const updateTitles = async () => {
       },
     })
     
-    if (response.ok) {
+    if (response && response.success) {
       await loadDoors()
       closeTitleModal()
       showNotification(`Названия успешно обновлены для категории "${selectedCategoryName.value}"`)
     } else {
-      const errorData = await response.json()
-      showNotification(errorData.message || 'Ошибка при обновлении названий', 'error')
+      showNotification(response?.message || 'Ошибка при обновлении названий', 'error')
     }
   } catch (error) {
     console.error('Error updating titles:', error)
