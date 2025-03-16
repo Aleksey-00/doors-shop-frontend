@@ -563,6 +563,7 @@ const updateTitles = async () => {
       replaceText: titleReplaceText.value,
     }, {
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
       },
     })
