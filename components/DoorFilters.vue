@@ -34,7 +34,7 @@
             <div class="relative">
               <input
                 id="minPrice"
-                v-model="filters.minPrice"
+                v-model="filters.priceMin"
                 type="number"
                 placeholder="От"
                 class="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -48,7 +48,7 @@
             <div class="relative">
               <input
                 id="maxPrice"
-                v-model="filters.maxPrice"
+                v-model="filters.priceMax"
                 type="number"
                 placeholder="До"
                 class="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -143,8 +143,8 @@ const emit = defineEmits<{
 
 // State
 const filters = ref({
-  minPrice: '',
-  maxPrice: '',
+  priceMin: '',
+  priceMax: '',
   inStock: false,
   sort: 'popular' as 'popular' | 'price_asc' | 'price_desc' | 'new'
 })
@@ -194,8 +194,8 @@ if (typeof window !== 'undefined') {
 // Methods
 const applyFilters = () => {
   emit('update:filters', {
-    minPrice: filters.value.minPrice ? Number(filters.value.minPrice) : undefined,
-    maxPrice: filters.value.maxPrice ? Number(filters.value.maxPrice) : undefined,
+    priceMin: filters.value.priceMin ? Number(filters.value.priceMin) : undefined,
+    priceMax: filters.value.priceMax ? Number(filters.value.priceMax) : undefined,
     inStock: filters.value.inStock,
     sort: filters.value.sort
   })
@@ -203,8 +203,8 @@ const applyFilters = () => {
 
 const resetFilters = () => {
   filters.value = {
-    minPrice: '',
-    maxPrice: '',
+    priceMin: '',
+    priceMax: '',
     inStock: false,
     sort: 'popular'
   }

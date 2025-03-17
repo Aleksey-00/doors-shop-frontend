@@ -1,95 +1,100 @@
 <template>
   <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-    <!-- Image -->
-    <div class="relative aspect-[3/4] sm:aspect-[4/5] md:aspect-[3/4] overflow-hidden">
-      <div 
-        class="absolute inset-0 transition-transform duration-500 ease-out"
-        :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
-      >
+    <!-- Link wrapper -->
+    <NuxtLink :to="`/doors/${door.id}`" class="block">
+      <!-- Image -->
+      <div class="relative aspect-[4/5] sm:aspect-[4/5] md:aspect-[4/5] max-h-[300px] sm:max-h-[350px] md:max-h-[400px] overflow-hidden">
         <div 
-          v-for="(url, index) in door.imageUrls" 
-          :key="index"
-          class="absolute top-0 left-0 w-full h-full"
-          :style="{ transform: `translateX(${index * 100}%)` }"
+          class="absolute inset-0 transition-transform duration-500 ease-out"
+          :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
         >
-          <img 
-            :src="url" 
-            :alt="door.title"
-            class="w-full h-full object-cover transition-opacity duration-300"
-            :class="{ 'opacity-100': index === currentImageIndex, 'opacity-0': index !== currentImageIndex }"
-            loading="lazy"
-          >
-        </div>
-      </div>
-
-      <!-- Navigation buttons -->
-      <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute inset-x-0 bottom-0 flex justify-between p-2">
-        <button 
-          @click="prevImage" 
-          class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
-          :class="{ 'opacity-0 pointer-events-none': currentImageIndex === 0 }"
-        >
-          <img src="~/assets/icons/chevron-left.svg" alt="Предыдущее" class="w-4 h-4 sm:w-6 sm:h-6">
-        </button>
-        <button 
-          @click="nextImage" 
-          class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
-          :class="{ 'opacity-0 pointer-events-none': currentImageIndex === door.imageUrls.length - 1 }"
-        >
-          <img src="~/assets/icons/chevron-right.svg" alt="Следующее" class="w-4 h-4 sm:w-6 sm:h-6">
-        </button>
-      </div>
-
-      <!-- Dots indicator -->
-      <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute bottom-2 inset-x-0">
-        <div class="flex justify-center gap-1.5">
-          <button 
-            v-for="(_, index) in door.imageUrls" 
+          <div 
+            v-for="(url, index) in door.imageUrls" 
             :key="index"
-            @click="currentImageIndex = index"
-            class="w-2 h-2 rounded-full transition-all duration-300 transform"
-            :class="[
-              index === currentImageIndex 
-                ? 'bg-white scale-110' 
-                : 'bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-105'
-            ]"
-          />
+            class="absolute top-0 left-0 w-full h-full"
+            :style="{ transform: `translateX(${index * 100}%)` }"
+          >
+            <img 
+              :src="url" 
+              :alt="door.title"
+              class="w-full h-full object-contain transition-opacity duration-300"
+              :class="{ 'opacity-100': index === currentImageIndex, 'opacity-0': index !== currentImageIndex }"
+              loading="lazy"
+            >
+          </div>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute inset-x-0 bottom-0 flex justify-between p-2">
+          <button 
+            @click="prevImage" 
+            class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
+            :class="{ 'opacity-0 pointer-events-none': currentImageIndex === 0 }"
+          >
+            <img src="~/assets/icons/chevron-left.svg" alt="Предыдущее" class="w-4 h-4 sm:w-6 sm:h-6">
+          </button>
+          <button 
+            @click="nextImage" 
+            class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
+            :class="{ 'opacity-0 pointer-events-none': currentImageIndex === door.imageUrls.length - 1 }"
+          >
+            <img src="~/assets/icons/chevron-right.svg" alt="Следующее" class="w-4 h-4 sm:w-6 sm:h-6">
+          </button>
+        </div>
+
+        <!-- Dots indicator -->
+        <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute bottom-2 inset-x-0">
+          <div class="flex justify-center gap-1.5">
+            <button 
+              v-for="(_, index) in door.imageUrls" 
+              :key="index"
+              @click="currentImageIndex = index"
+              class="w-2 h-2 rounded-full transition-all duration-300 transform"
+              :class="[
+                index === currentImageIndex 
+                  ? 'bg-white scale-110' 
+                  : 'bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-105'
+              ]"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Content -->
-    <div class="p-3 sm:p-4">
-      <h3 class="text-base sm:text-lg font-semibold mb-2 line-clamp-2">{{ door.title }}</h3>
-      
-      <!-- Price -->
-      <div class="mb-3 sm:mb-4">
-        <div class="flex items-baseline gap-2">
-          <span class="text-lg sm:text-xl font-bold">{{ formattedPrice }}</span>
+      <!-- Content -->
+      <div class="p-3 sm:p-4">
+        <h3 class="text-base sm:text-lg font-semibold mb-2 line-clamp-2">{{ door.title }}</h3>
+        
+        <!-- Price -->
+        <div class="mb-3 sm:mb-4">
+          <div class="flex items-baseline gap-2">
+            <span class="text-lg sm:text-xl font-bold">{{ formattedPrice }}</span>
+            <span 
+              v-if="door.oldPrice" 
+              class="text-xs sm:text-sm text-gray-500 line-through"
+            >
+              {{ formattedOldPrice }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="mb-3 sm:mb-4">
           <span 
-            v-if="door.oldPrice" 
-            class="text-xs sm:text-sm text-gray-500 line-through"
+            :class="[
+              'px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm',
+              door.inStock 
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            ]"
           >
-            {{ formattedOldPrice }}
+            {{ door.inStock ? 'В наличии' : 'Под заказ' }}
           </span>
         </div>
       </div>
+    </NuxtLink>
 
-      <!-- Stock Status -->
-      <div class="mb-3 sm:mb-4">
-        <span 
-          :class="[
-            'px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm',
-            door.inStock 
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          ]"
-        >
-          {{ door.inStock ? 'В наличии' : 'Под заказ' }}
-        </span>
-      </div>
-
-      <!-- Actions -->
+    <!-- Actions -->
+    <div class="p-3 sm:p-4 pt-0">
       <div class="flex flex-col space-y-2">
         <button 
           @click="addToCart"
@@ -106,68 +111,40 @@
       </div>
     </div>
   </div>
-
-  <Alert
-    :show="showAlert"
-    :message="alertMessage"
-    :type="alertType"
-    @close="showAlert = false"
-  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { Door } from '~/types/door'
+import { usePrice } from '~/composables/usePrice'
 
 // Props
 const props = defineProps<{
   door: Door
 }>()
 
+// Emits
 const emit = defineEmits<{
-  (e: 'favoriteChanged', payload: { doorId: string, isFavorite: boolean }): void
+  (e: 'favoriteChanged', payload: { doorId: string; isFavorite: boolean }): void
+  (e: 'cartChanged', isInCart: boolean): void
 }>()
 
 // State
-const showAlert = ref(false)
-const alertMessage = ref('')
-const alertType = ref<'success' | 'error' | 'info'>('success')
-
 const isFavorite = ref(false)
 const currentImageIndex = ref(0)
 
+// Composables
+const { formatPrice } = usePrice()
+
 // Check if door is in favorites on mount
 onMounted(() => {
-  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-  isFavorite.value = favorites.some(item => item.id === props.door.id)
+  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]') as Door[]
+  isFavorite.value = favorites.some((item: Door) => item.id === props.door.id)
 })
 
 // Computed
-const currentImage = computed(() => {
-  if (!props.door.imageUrls || props.door.imageUrls.length === 0) {
-    return 'https://placehold.co/600x800/e2e8f0/1e293b?text=Нет+изображения'
-  }
-  return props.door.imageUrls[currentImageIndex.value]
-})
-
-const formattedPrice = computed(() => {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(props.door.price)
-})
-
-const formattedOldPrice = computed(() => {
-  if (!props.door.oldPrice) return ''
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(props.door.oldPrice)
-})
+const formattedPrice = computed(() => formatPrice(props.door.price))
+const formattedOldPrice = computed(() => props.door.oldPrice ? formatPrice(props.door.oldPrice) : '')
 
 // Methods
 const nextImage = () => {
@@ -183,73 +160,36 @@ const prevImage = () => {
 }
 
 const addToCart = () => {
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-  const isAlreadyInCart = cart.some(item => item.id === props.door.id)
-  
-  if (!isAlreadyInCart) {
-    cart.push(props.door)
-    localStorage.setItem('cart', JSON.stringify(cart))
-    // Dispatch storage event for the current window
+  const cartItems = JSON.parse(localStorage.getItem('cart') || '[]') as Door[]
+  if (!cartItems.some((item: Door) => item.id === props.door.id)) {
+    cartItems.push(props.door)
+    localStorage.setItem('cart', JSON.stringify(cartItems))
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'cart',
-      newValue: JSON.stringify(cart)
+      newValue: JSON.stringify(cartItems)
     }))
-    
-    alertType.value = 'success'
-    alertMessage.value = 'Товар добавлен в корзину'
-    showAlert.value = true
-    setTimeout(() => {
-      showAlert.value = false
-    }, 3000)
-  } else {
-    alertType.value = 'info'
-    alertMessage.value = 'Товар уже в корзине'
-    showAlert.value = true
-    setTimeout(() => {
-      showAlert.value = false
-    }, 3000)
+    emit('cartChanged', true)
   }
 }
 
 const toggleFavorite = () => {
-  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]') as Door[]
   
   if (isFavorite.value) {
-    // Remove from favorites
-    const updatedFavorites = favorites.filter(item => item.id !== props.door.id)
+    const updatedFavorites = favorites.filter((item: Door) => item.id !== props.door.id)
     localStorage.setItem('favorites', JSON.stringify(updatedFavorites))
-    // Dispatch storage event for the current window
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'favorites',
-      newValue: JSON.stringify(updatedFavorites)
-    }))
   } else {
-    // Add to favorites
     favorites.push(props.door)
     localStorage.setItem('favorites', JSON.stringify(favorites))
-    // Dispatch storage event for the current window
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'favorites',
-      newValue: JSON.stringify(favorites)
-    }))
   }
   
-  isFavorite.value = !isFavorite.value
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: 'favorites',
+    newValue: localStorage.getItem('favorites')
+  }))
   
-  alertType.value = 'info'
-  alertMessage.value = isFavorite.value 
-    ? 'Дверь добавлена в избранное' 
-    : 'Дверь удалена из избранного'
-  showAlert.value = true
-  setTimeout(() => {
-    showAlert.value = false
-  }, 3000)
-
-  // Emit event for parent components
-  emit('favoriteChanged', {
-    doorId: props.door.id,
-    isFavorite: isFavorite.value
-  })
+  isFavorite.value = !isFavorite.value
+  emit('favoriteChanged', { doorId: props.door.id, isFavorite: isFavorite.value })
 }
 </script>
 
@@ -260,21 +200,6 @@ const toggleFavorite = () => {
 
 .transition-opacity {
   will-change: opacity;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
 }
 
 button {

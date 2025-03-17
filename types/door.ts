@@ -7,6 +7,26 @@ export interface Door {
   imageUrls: string[]
   inStock: boolean
   updatedAt: string
+  description?: string
+  specifications?: Record<string, string>
+  dimensions?: {
+    width?: number
+    height?: number
+    depth?: number
+  }
+  materials?: {
+    frame?: string
+    coating?: string
+    insulation?: string
+  }
+  equipment?: string[]
+  features?: string[]
+  manufacturer?: string
+  warranty?: string
+  installation?: {
+    opening?: 'left' | 'right' | 'universal'
+    type?: string
+  }
 }
 
 export interface DoorFilters {
@@ -16,6 +36,7 @@ export interface DoorFilters {
   priceMin?: number
   priceMax?: number
   inStock?: boolean
+  sort?: 'popular' | 'price_asc' | 'price_desc' | 'new'
 }
 
 export interface DoorsResponse {
