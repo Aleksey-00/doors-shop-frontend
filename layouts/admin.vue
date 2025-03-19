@@ -1,12 +1,22 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <!-- Header без навигационных элементов -->
+    <!-- Header -->
     <header class="bg-white shadow">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <img src="/images/logo.svg" alt="Евро Двери" class="h-12" />
+            <NuxtLink to="/admin/dashboard">
+              <img src="/images/logo.svg" alt="Евро Двери" class="h-12" />
+            </NuxtLink>
             <span class="ml-4 text-xl font-bold">Админ-панель</span>
+          </div>
+          <div class="flex items-center">
+            <button
+              @click="logout"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Выйти
+            </button>
           </div>
         </div>
       </div>
@@ -29,4 +39,13 @@
       </div>
     </footer>
   </div>
-</template> 
+</template>
+
+<script setup lang="ts">
+const router = useRouter()
+
+const logout = () => {
+  localStorage.removeItem('admin_token')
+  router.push('/admin/login')
+}
+</script> 

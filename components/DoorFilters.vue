@@ -34,7 +34,8 @@
             <div class="relative">
               <input
                 id="minPrice"
-                v-model="filters.priceMin"
+                :value="filters.priceMin"
+                @input="updatePriceMin"
                 type="number"
                 placeholder="От"
                 class="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -48,7 +49,8 @@
             <div class="relative">
               <input
                 id="maxPrice"
-                v-model="filters.priceMax"
+                :value="filters.priceMax"
+                @input="updatePriceMax"
                 type="number"
                 placeholder="До"
                 class="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -141,6 +143,15 @@ const emit = defineEmits<{
   (e: 'update:filters', value: any): void
 }>()
 
+// Debounce функция
+const debounce = (fn: Function, wait: number) => {
+  let timeout: ReturnType<typeof setTimeout>
+  return function(this: any, ...args: any[]) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => fn.apply(this, args), wait)
+  }
+}
+
 // State
 const filters = ref({
   priceMin: '',
@@ -201,6 +212,9 @@ const applyFilters = () => {
   })
 }
 
+// Debounced version for price changes
+const debouncedApplyFilters = debounce(applyFilters, 500)
+
 const resetFilters = () => {
   filters.value = {
     priceMin: '',
@@ -212,10 +226,30 @@ const resetFilters = () => {
   emit('update:filters', {})
 }
 
-// Watch for filter changes
-watch(filters, () => {
-  applyFilters()
-}, { deep: true })
+// Определим обработчики для цены, чтобы применить debounce
+const updatePriceMin = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  filters.value.priceMin = target.value
+  debouncedApplyFilters()
+}
+
+const updatePriceMax = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  filters.value.priceMax = target.value
+  debouncedApplyFilters()
+}
+
+// Watch for filter changes, но не для цены (они обрабатываются отдельно с debounce)
+watch(
+  () => ({
+    inStock: filters.value.inStock,
+    sort: filters.value.sort
+  }),
+  () => {
+    applyFilters()
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

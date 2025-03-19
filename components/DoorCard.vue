@@ -1,15 +1,15 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-    <!-- Link wrapper -->
-    <NuxtLink :to="`/doors/${door.id}`" class="block">
-      <!-- Image -->
-      <div class="relative aspect-[4/5] sm:aspect-[4/5] md:aspect-[4/5] max-h-[300px] sm:max-h-[350px] md:max-h-[400px] overflow-hidden">
+  <div v-if="hasValidImages" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <!-- Image container outside of NuxtLink -->
+    <div class="relative aspect-[4/5] sm:aspect-[4/5] md:aspect-[4/5] max-h-[300px] sm:max-h-[350px] md:max-h-[400px] overflow-hidden">
+      <NuxtLink :to="`/doors/${door.id}`" class="block h-full">
         <div 
+          v-if="hasValidImages"
           class="absolute inset-0 transition-transform duration-500 ease-out"
           :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
         >
           <div 
-            v-for="(url, index) in door.imageUrls" 
+            v-for="(url, index) in filteredImageUrls" 
             :key="index"
             class="absolute top-0 left-0 w-full h-full"
             :style="{ transform: `translateX(${index * 100}%)` }"
@@ -23,44 +23,58 @@
             >
           </div>
         </div>
-
-        <!-- Navigation buttons -->
-        <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute inset-x-0 bottom-0 flex justify-between p-2">
-          <button 
-            @click="prevImage" 
-            class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
-            :class="{ 'opacity-0 pointer-events-none': currentImageIndex === 0 }"
-          >
-            <img src="~/assets/icons/chevron-left.svg" alt="Предыдущее" class="w-4 h-4 sm:w-6 sm:h-6">
-          </button>
-          <button 
-            @click="nextImage" 
-            class="bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-75 transition-all transform hover:scale-105 active:scale-95"
-            :class="{ 'opacity-0 pointer-events-none': currentImageIndex === door.imageUrls.length - 1 }"
-          >
-            <img src="~/assets/icons/chevron-right.svg" alt="Следующее" class="w-4 h-4 sm:w-6 sm:h-6">
-          </button>
-        </div>
-
-        <!-- Dots indicator -->
-        <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute bottom-2 inset-x-0">
-          <div class="flex justify-center gap-1.5">
-            <button 
-              v-for="(_, index) in door.imageUrls" 
-              :key="index"
-              @click="currentImageIndex = index"
-              class="w-2 h-2 rounded-full transition-all duration-300 transform"
-              :class="[
-                index === currentImageIndex 
-                  ? 'bg-white scale-110' 
-                  : 'bg-white bg-opacity-50 hover:bg-opacity-75 hover:scale-105'
-              ]"
-            />
+        <div v-else class="w-full h-full flex items-center justify-center bg-gray-100">
+          <div class="text-gray-400 text-center">
+            <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p>Фото скоро появится</p>
           </div>
         </div>
+      </NuxtLink>
+
+      <!-- Navigation buttons outside of NuxtLink -->
+      <div v-if="hasValidImages && filteredImageUrls.length > 1" class="absolute inset-x-0 bottom-0 flex justify-between p-2">
+        <button 
+          @click.stop="prevImage" 
+          class="bg-white/80 text-gray-700 p-1.5 sm:p-2 rounded-full hover:bg-white transition-all transform hover:scale-105 active:scale-95 z-10"
+          :class="{ 'opacity-0 pointer-events-none': currentImageIndex === 0 }"
+        >
+          <svg class="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button 
+          @click.stop="nextImage" 
+          class="bg-white/80 text-gray-700 p-1.5 sm:p-2 rounded-full hover:bg-white transition-all transform hover:scale-105 active:scale-95 z-10"
+          :class="{ 'opacity-0 pointer-events-none': currentImageIndex === filteredImageUrls.length - 1 }"
+        >
+          <svg class="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
-      <!-- Content -->
+      <!-- Dots indicator outside of NuxtLink -->
+      <div v-if="hasValidImages && filteredImageUrls.length > 1" class="absolute bottom-2 inset-x-0 z-10">
+        <div class="flex justify-center gap-1.5">
+          <button 
+            v-for="(_, index) in filteredImageUrls" 
+            :key="index"
+            @click.stop="currentImageIndex = index"
+            class="w-2 h-2 rounded-full transition-all duration-300 transform"
+            :class="[
+              index === currentImageIndex 
+                ? 'bg-blue-500 scale-110' 
+                : 'bg-gray-300 hover:bg-gray-400 hover:scale-105'
+            ]"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <NuxtLink :to="`/doors/${door.id}`" class="block">
       <div class="p-3 sm:p-4">
         <h3 class="text-base sm:text-lg font-semibold mb-2 line-clamp-2">{{ door.title }}</h3>
         
@@ -117,6 +131,11 @@
 import { ref, computed, onMounted } from 'vue'
 import type { Door } from '~/types/door'
 import { usePrice } from '~/composables/usePrice'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Navigation, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
 
 // Props
 const props = defineProps<{
@@ -124,10 +143,7 @@ const props = defineProps<{
 }>()
 
 // Emits
-const emit = defineEmits<{
-  (e: 'favoriteChanged', payload: { doorId: string; isFavorite: boolean }): void
-  (e: 'cartChanged', isInCart: boolean): void
-}>()
+const emit = defineEmits(['favoriteChanged', 'cartChanged', 'click'])
 
 // State
 const isFavorite = ref(false)
@@ -145,6 +161,16 @@ onMounted(() => {
 // Computed
 const formattedPrice = computed(() => formatPrice(props.door.price))
 const formattedOldPrice = computed(() => props.door.oldPrice ? formatPrice(props.door.oldPrice) : '')
+
+const filteredImageUrls = computed(() => {
+  if (!props.door.imageUrls || !Array.isArray(props.door.imageUrls)) return []
+  return props.door.imageUrls.filter(url => 
+    !url.includes('double_ring') && 
+    !url.includes('photo_coming_soon')
+  )
+})
+
+const hasValidImages = computed(() => filteredImageUrls.value.length > 0)
 
 // Methods
 const nextImage = () => {
@@ -191,6 +217,16 @@ const toggleFavorite = () => {
   isFavorite.value = !isFavorite.value
   emit('favoriteChanged', { doorId: props.door.id, isFavorite: isFavorite.value })
 }
+
+const isHovered = ref(false)
+
+const handleClick = () => {
+  emit('click', props.door)
+}
+
+const handleImageClick = (event: MouseEvent) => {
+  event.stopPropagation()
+}
 </script>
 
 <style scoped>
@@ -208,5 +244,108 @@ button {
 
 button:active {
   transform: scale(0.95);
+}
+
+.door-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.door-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.door-card__image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 75%; /* 4:3 Aspect Ratio */
+  overflow: hidden;
+}
+
+.door-card__swiper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.door-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.door-card__content {
+  padding: 16px;
+}
+
+.door-card__title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.door-card__price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.door-card__category {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Swiper styles */
+:deep(.swiper-button-next),
+:deep(.swiper-button-prev) {
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+:deep(.swiper-button-next:after),
+:deep(.swiper-button-prev:after) {
+  font-size: 16px;
+}
+
+:deep(.swiper-pagination-bullet) {
+  background: white;
+  opacity: 0.7;
+}
+
+:deep(.swiper-pagination-bullet-active) {
+  opacity: 1;
+  background: white;
+}
+
+@media (max-width: 768px) {
+  .door-card__title {
+    font-size: 14px;
+  }
+
+  .door-card__price {
+    font-size: 16px;
+  }
+
+  .door-card__category {
+    font-size: 12px;
+  }
 }
 </style> 

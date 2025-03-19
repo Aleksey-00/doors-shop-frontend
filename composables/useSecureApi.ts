@@ -8,7 +8,8 @@ export const useSecureApi = () => {
     // Удаляем любые упоминания портов
     url = url.replace(/:\d+/, '');
     
-    if (process.env.NODE_ENV === 'production' && url.startsWith('http:')) {
+    // Всегда используем HTTPS для production
+    if (url.startsWith('http:')) {
       return url.replace('http:', 'https:');
     }
     return url;
@@ -41,13 +42,14 @@ export const useSecureApi = () => {
   
   const securePost = async (endpoint: string, data: any, options?: RequestInit) => {
     try {
-      // Объединяем параметры с данными для POST-запроса
       const config = useRuntimeConfig();
       const baseURL = ensureHttps(config.public.apiBase);
+      
       const fetchOptions: RequestInit = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           ...(options?.headers || {})
         },
         body: JSON.stringify(data),
@@ -57,26 +59,12 @@ export const useSecureApi = () => {
       const response = await fetch(`${baseURL}${endpoint}`, fetchOptions);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message || `HTTP error! status: ${response.status}`);
       }
       
       return await response.json();
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Failed to fetch')) {
-        console.warn('API request failed, trying with HTTPS');
-        const config = useRuntimeConfig();
-        const baseURL = ensureHttps(config.public.apiBase);
-        const fetchOptions: RequestInit = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(options?.headers || {})
-          },
-          body: JSON.stringify(data),
-          ...options
-        };
-        return await fetch(`${baseURL}${endpoint}`, fetchOptions).then(res => res.json());
-      }
       throw error;
     }
   };

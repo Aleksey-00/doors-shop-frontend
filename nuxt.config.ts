@@ -29,9 +29,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NODE_ENV === 'production' 
-        ? (process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001').replace(/^http:/, 'https:')
-        : (process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001')
+      apiBase: 'https://doors-shop-backend-production.up.railway.app'
     }
   },
   modules: [
@@ -103,11 +101,14 @@ export default defineNuxtConfig({
     timing: true,
     devProxy: {
       '/api': {
-        target: process.env.NODE_ENV === 'production' 
-        ? 'https://doors-shop-backend-production.up.railway.app' 
-        :process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001',
+        target: 'https://doors-shop-backend-production.up.railway.app',
         changeOrigin: true,
-        secure: process.env.NODE_ENV === 'production'
+        secure: true,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+          'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization'
+        }
       }
     }
   },

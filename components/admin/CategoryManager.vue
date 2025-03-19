@@ -50,7 +50,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="category in categories" :key="category.id">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ category.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ category.description }}</td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-md break-words">{{ category.description }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <button
                 @click="deleteCategory(category.id)"

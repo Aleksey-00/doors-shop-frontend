@@ -21,13 +21,13 @@
           class="bg-white rounded-lg shadow p-4 flex items-center space-x-4"
         >
           <img 
-            :src="item.imageUrls[0]" 
+            :src="filteredImageUrls(item.imageUrls)[0]" 
             :alt="item.title" 
             class="w-24 h-24 object-cover rounded" 
           />
           <div class="flex-1">
             <h3 class="font-semibold">{{ item.title }}</h3>
-            <p class="text-gray-600">{{ formatPrice(item.price) }} ₽</p>
+            <p class="text-gray-600">{{ formatPrice(item.price) }}</p>
           </div>
           <button 
             @click="removeItem(item)"
@@ -100,7 +100,7 @@
           <div class="pt-6 border-t mt-6">
             <div class="flex justify-between text-lg font-semibold mb-4">
               <span>Итого:</span>
-              <span>{{ formatPrice(total) }} ₽</span>
+              <span>{{ formatPrice(total) }}</span>
             </div>
             <button 
               type="submit"
@@ -121,10 +121,10 @@
   </div>
 
   <Alert
-    :show="showAlert"
+    :show="showAlertValue"
     :message="alertMessage"
     :type="alertType"
-    @close="showAlert = false"
+    @close="hideAlert"
   />
 </template>
 
@@ -134,13 +134,14 @@ import type { Door } from '~/types/door'
 import { Mask } from 'maska'
 import { useRuntimeConfig } from '#app'
 import { useSecureApi } from '~/composables/useSecureApi'
+import { usePrice } from '~/composables/usePrice'
+import { useAlert } from '~/composables/useAlert'
 
 const config = useRuntimeConfig()
+const { formatPrice } = usePrice()
+const { showAlertValue, alertMessage, alertType, showAlert, hideAlert } = useAlert()
 
 const items = ref<Door[]>([])
-const showAlert = ref(false)
-const alertMessage = ref('')
-const alertType = ref<'success' | 'error' | 'info'>('success')
 
 const orderForm = ref({
   name: '',
@@ -222,41 +223,35 @@ onMounted(() => {
   }
 })
 
-const total = computed(() => {
-  return items.value.reduce((sum, item) => sum + item.price, 0)
-})
-
-const formatPrice = (price: number) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+const filteredImageUrls = (urls: string[]) => {
+  if (!urls || !Array.isArray(urls)) return []
+  return urls.filter(url => !url.includes('double_ring.svg'))
 }
+
+const total = computed(() => {
+  return items.value.reduce((sum, item) => {
+    // Убедимся, что цена является числом
+    const price = Number(item.price)
+    return sum + (isNaN(price) ? 0 : price)
+  }, 0)
+})
 
 const removeItem = (item: Door) => {
   items.value = items.value.filter(i => i.id !== item.id)
   localStorage.setItem('cart', JSON.stringify(items.value))
-  // Dispatch storage event for the current window
   window.dispatchEvent(new StorageEvent('storage', {
     key: 'cart',
     newValue: JSON.stringify(items.value)
   }))
   
-  alertType.value = 'info'
-  alertMessage.value = 'Товар удален из корзины'
-  showAlert.value = true
-  setTimeout(() => {
-    showAlert.value = false
-  }, 3000)
+  showAlert('Товар удален из корзины', 'info')
 }
 
 const submitOrder = async () => {
   validateForm()
   
   if (!isFormValid.value) {
-    alertType.value = 'error'
-    alertMessage.value = 'Пожалуйста, проверьте правильность заполнения формы'
-    showAlert.value = true
-    setTimeout(() => {
-      showAlert.value = false
-    }, 3000)
+    showAlert('Пожалуйста, проверьте правильность заполнения формы', 'error')
     return
   }
 
@@ -270,7 +265,12 @@ const submitOrder = async () => {
     console.log('Отправка заказа:', orderData)
 
     const api = useSecureApi()
-    const result = await api.post('/api/orders', orderData)
+    const result = await api.post('/api/orders', orderData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
     console.log('Заказ успешно создан:', result)
 
     // Clear cart
@@ -289,20 +289,25 @@ const submitOrder = async () => {
       comment: ''
     }
 
-    alertType.value = 'success'
-    alertMessage.value = 'Заказ успешно оформлен! Скоро с вами свяжутся.'
-    showAlert.value = true
-    setTimeout(() => {
-      showAlert.value = false
-    }, 3000)
+    showAlert('Заказ успешно оформлен! Скоро с вами свяжутся.', 'success')
   } catch (error) {
     console.error('Ошибка при оформлении заказа:', error)
-    alertType.value = 'error'
-    alertMessage.value = error instanceof Error ? error.message : 'Произошла ошибка при оформлении заказа'
-    showAlert.value = true
-    setTimeout(() => {
-      showAlert.value = false
-    }, 3000)
+    showAlert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону.', 'error')
+  }
+}
+
+const addToCart = (item: Door) => {
+  const cartItems = JSON.parse(localStorage.getItem('cart') || '[]') as Door[]
+  if (!cartItems.some((cartItem: Door) => cartItem.id === item.id)) {
+    cartItems.push(item)
+    localStorage.setItem('cart', JSON.stringify(cartItems))
+    showAlert('Товар добавлен в корзину', 'success')
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'cart',
+      newValue: localStorage.getItem('cart')
+    }))
+  } else {
+    showAlert('Товар уже в корзине', 'info')
   }
 }
 </script> 

@@ -99,11 +99,9 @@
             <button
               type="button"
               @click="isDropdownOpen = !isDropdownOpen"
-              class="mt-1 relative w-full bg-white rounded-md border-2 border-gray-300 shadow-sm pl-4 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 relative w-full bg-white rounded-md border-2 border-gray-300 shadow-sm px-4 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
-              <span class="block truncate">
-                {{ newDoor.category ? getCategoryName(newDoor.category) : 'Выберите категорию' }}
-              </span>
+              <span class="block truncate">{{ selectedCategoryName || 'Выберите категорию' }}</span>
               <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -211,13 +209,13 @@
             <td class="px-4 py-4">
               <div class="relative group">
                 <img 
-                  :src="door.imageUrls && door.imageUrls.length > 0 ? door.imageUrls[0] : ''"
+                  :src="getFirstValidImage(door.imageUrls)"
                   :alt="door.title"
                   class="h-16 w-16 object-cover rounded cursor-pointer"
                 />
-                <div v-if="door.imageUrls && door.imageUrls.length > 1" class="absolute hidden group-hover:flex bg-white border rounded-lg p-2 z-10 gap-2 -right-2 top-0 transform translate-x-full shadow-lg">
+                <div v-if="getValidImages(door.imageUrls).length > 1" class="absolute hidden group-hover:flex bg-white border rounded-lg p-2 z-10 gap-2 -right-2 top-0 transform translate-x-full shadow-lg">
                   <img 
-                    v-for="(url, index) in door.imageUrls.slice(1)"
+                    v-for="(url, index) in getValidImages(door.imageUrls).slice(1)"
                     :key="index"
                     :src="url"
                     :alt="`${door.title} - изображение ${index + 2}`"
@@ -231,17 +229,17 @@
             </td>
             <td class="px-4 py-4">
               <div class="flex flex-col space-y-2">
-                <button 
+                <button
+                  @click="openTitleModal(door.category_name)"
+                  class="text-sm font-medium text-blue-600 hover:text-blue-900"
+                >
+                  {{ door.category_name }}
+                </button>
+                <button
                   @click="openPriceModal(door.category)"
                   class="text-blue-600 hover:text-blue-900 text-sm"
                 >
-                  {{ getCategoryName(door.category) }}
-                </button>
-                <button
-                  @click="openTitleModal(door.category)"
-                  class="text-blue-600 hover:text-blue-900 text-sm"
-                >
-                  (изменить названия)
+                  Изменить цены
                 </button>
               </div>
             </td>
@@ -658,6 +656,17 @@ watch(categorySearchQuery, () => {
 watch(currentPage, () => {
   loadDoors()
 })
+
+// Добавляем функции для фильтрации изображений
+const getValidImages = (urls: string[] | undefined) => {
+  if (!urls) return []
+  return urls.filter(url => !url.includes('double_ring.svg'))
+}
+
+const getFirstValidImage = (urls: string[] | undefined) => {
+  const validImages = getValidImages(urls)
+  return validImages.length > 0 ? validImages[0] : ''
+}
 
 onMounted(() => {
   loadCategories()

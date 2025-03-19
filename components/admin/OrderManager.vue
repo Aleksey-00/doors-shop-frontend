@@ -96,7 +96,7 @@
                 class="flex items-center space-x-4"
               >
                 <img
-                  :src="item.imageUrls[0]"
+                  :src="getFirstValidImage(item.imageUrls)"
                   :alt="item.title"
                   class="h-16 w-16 object-cover rounded"
                 >
@@ -178,6 +178,17 @@ const viewOrderDetails = (order: Order) => {
 
 const formatPrice = (price: number) => {
   return price.toLocaleString() + ' ₽'
+}
+
+// Добавляем функции для фильтрации изображений
+const getValidImages = (urls: string[] | undefined) => {
+  if (!urls) return []
+  return urls.filter(url => !url.includes('double_ring.svg'))
+}
+
+const getFirstValidImage = (urls: string[] | undefined) => {
+  const validImages = getValidImages(urls)
+  return validImages.length > 0 ? validImages[0] : ''
 }
 
 onMounted(() => {

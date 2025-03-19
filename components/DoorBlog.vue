@@ -72,48 +72,39 @@ defineExpose({
 </script>
 
 <template>
-  <section class="bg-white py-8 sm:py-12 lg:py-16">
-    <div class="container mx-auto px-4">
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12">
+  <section class="bg-gray-50 py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">
         Полезные статьи
       </h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <article 
-          v-for="post in articles" 
-          :key="post.id" 
-          class="bg-white rounded-lg shadow-sm overflow-hidden"
-        >
-          <div class="aspect-[16/9]">
-            <img 
-              :src="post.image" 
-              :alt="post.title"
-              class="w-full h-full object-cover"
-            >
+      <div class="grid gap-8 md:grid-cols-3">
+        <!-- Статья 1 -->
+        <article v-for="article in articles" :key="article.id" class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="aspect-w-16 aspect-h-9 bg-gray-100">
+            <img :src="article.image" :alt="article.title" class="object-cover" />
           </div>
-          
-          <div class="p-4 sm:p-6">
-            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <time :datetime="post.date">{{ formatDate(post.date) }}</time>
-              <span>•</span>
-              <span>{{ post.readTime }} мин чтения</span>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+              <time>{{ formatDate(article.date) }}</time>
+              <span class="mx-2">•</span>
+              <span>{{ article.readTime }} чтения</span>
             </div>
-
-            <h3 class="text-lg sm:text-xl font-semibold mb-2 line-clamp-2">
-              {{ post.title }}
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              {{ article.title }}
             </h3>
-
-            <p class="text-sm sm:text-base text-gray-600 mb-4 line-clamp-3">
-              {{ post.excerpt }}
+            <p class="text-gray-600 mb-4">
+              {{ article.excerpt }}
             </p>
-
-            <a 
-              href="#" 
-              class="inline-flex items-center text-sm sm:text-base font-medium text-blue-600 hover:text-blue-700"
+            <NuxtLink 
+              :to="article.id === 1 ? 'articles/selection' : article.id === 2 ? 'articles/installation' : 'articles/maintenance'"
+              class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
             >
               Читать далее
-              <img src="~/assets/icons/chevron-right.svg" alt="" class="w-4 h-4 sm:w-5 sm:h-5 ml-1">
-            </a>
+              <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </NuxtLink>
           </div>
         </article>
       </div>

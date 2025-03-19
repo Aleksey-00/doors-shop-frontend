@@ -2,6 +2,7 @@ export interface Door {
   id: string
   title: string
   category: string
+  category_name: string
   price: number
   oldPrice?: number
   imageUrls: string[]

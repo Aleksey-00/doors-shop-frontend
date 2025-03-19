@@ -5,7 +5,7 @@
       <ol class="flex items-center space-x-2 text-sm">
         <li><NuxtLink to="/" class="text-gray-500 hover:text-gray-700">Главная</NuxtLink></li>
         <li><span class="text-gray-500">/</span></li>
-        <li><NuxtLink to="/doors" class="text-gray-500 hover:text-gray-700">Двери</NuxtLink></li>
+        <li><NuxtLink to="/" class="text-gray-500 hover:text-gray-700">Двери</NuxtLink></li>
         <li><span class="text-gray-500">/</span></li>
         <li><span class="text-gray-900">{{ door?.title }}</span></li>
       </ol>
@@ -23,10 +23,10 @@
         </div>
         
         <!-- Thumbnails -->
-        <div v-if="door.imageUrls && door.imageUrls.length > 1" class="mt-4">
+        <div v-if="filteredImages.length > 1" class="mt-4">
           <div class="flex space-x-2 overflow-x-auto pb-2">
             <button
-              v-for="(url, index) in door.imageUrls"
+              v-for="(url, index) in filteredImages"
               :key="index"
               @click="currentImageIndex = index"
               class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors"
@@ -121,12 +121,6 @@
               <span>Расширение проема - от 3000₽</span>
             </li>
           </ul>
-          <NuxtLink 
-            to="/services" 
-            class="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium"
-          >
-            Все услуги по установке →
-          </NuxtLink>
         </div>
 
         <!-- Specifications -->
@@ -171,7 +165,10 @@
     <!-- Measurement Form Modal -->
     <Modal v-model="showMeasurementForm">
       <template #header>Заказать замер</template>
-      <MeasurementForm @submit="submitMeasurementForm" />
+      <MeasurementForm 
+        @submit="submitMeasurementForm"
+        @cancel="showMeasurementForm = false"
+      />
     </Modal>
 
     <!-- Callback Form Modal -->
@@ -196,6 +193,7 @@ import type { MeasurementFormData } from '~/components/MeasurementForm.vue'
 import type { CallbackFormData } from '~/components/CallbackForm.vue'
 import { usePrice } from '~/composables/usePrice'
 import { useAlert } from '~/composables/useAlert'
+import Alert from '~/components/Alert.vue'
 
 // Route
 const route = useRoute()
@@ -203,15 +201,12 @@ const router = useRouter()
 
 // Composables
 const { formatPrice } = usePrice()
-const { showAlert, hideAlert } = useAlert()
+const { showAlertValue, alertMessage, alertType, showAlert, hideAlert } = useAlert()
 
 // State
 const door = ref<Door | null>(null)
 const currentImageIndex = ref(0)
 const isFavorite = ref(false)
-const showAlertValue = ref(false)
-const alertMessage = ref('')
-const alertType = ref<'success' | 'error' | 'info'>('success')
 const similarDoors = ref<Door[]>([])
 const viewedDoors = ref<Door[]>([])
 
@@ -220,9 +215,27 @@ const showMeasurementForm = ref(false)
 const showCallbackForm = ref(false)
 
 // Methods
+const isValidDoor = (door: Door) => {
+  return door.imageUrls && door.imageUrls.some(url => 
+    !url.includes('double_ring') && 
+    !url.includes('photo_coming_soon')
+  )
+}
+
 const loadDoor = async () => {
   try {
-    const response = await $fetch<Door>(`/api/doors/${route.params.id}`)
+    const response = await $fetch<Door>(`/api/doors/${route.params.id}`, {
+      baseURL: 'https://doors-shop-backend-production.up.railway.app'
+    })
+    
+    if (!isValidDoor(response)) {
+      showAlert('Дверь временно недоступна', 'error')
+      setTimeout(() => {
+        router.push('/')
+      }, 2000)
+      return
+    }
+    
     door.value = response
     updateRecentlyViewed(response)
     loadSimilarDoors()
@@ -236,8 +249,10 @@ const loadDoor = async () => {
 const loadSimilarDoors = async () => {
   if (!door.value) return
   try {
-    const response = await $fetch<Door[]>(`/api/doors/similar/${door.value.id}`)
-    similarDoors.value = response
+    const response = await $fetch<Door[]>(`/api/doors/similar/${door.value.id}`, {
+      baseURL: 'https://doors-shop-backend-production.up.railway.app'
+    })
+    similarDoors.value = response.filter(isValidDoor)
   } catch (error) {
     console.error('Error loading similar doors:', error)
   }
@@ -245,10 +260,12 @@ const loadSimilarDoors = async () => {
 
 // Update recently viewed
 const updateRecentlyViewed = (currentDoor: Door) => {
+  if (!isValidDoor(currentDoor)) return
+  
   const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]') as Door[]
   const updatedViewed = [
     currentDoor,
-    ...viewed.filter((item: Door) => item.id !== currentDoor.id)
+    ...viewed.filter((item: Door) => item.id !== currentDoor.id && isValidDoor(item))
   ].slice(0, 4)
   localStorage.setItem('recentlyViewed', JSON.stringify(updatedViewed))
   viewedDoors.value = updatedViewed.filter((item: Door) => item.id !== currentDoor.id)
@@ -257,15 +274,26 @@ const updateRecentlyViewed = (currentDoor: Door) => {
 // Load recently viewed
 const loadRecentlyViewed = () => {
   const viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]') as Door[]
-  viewedDoors.value = viewed.filter((item: Door) => item.id !== route.params.id)
+  viewedDoors.value = viewed.filter((item: Door) => 
+    item.id !== route.params.id && 
+    isValidDoor(item)
+  )
 }
 
 // Computed
 const currentImage = computed(() => {
-  if (!door.value?.imageUrls || door.value.imageUrls.length === 0) {
+  if (!filteredImages.value || filteredImages.value.length === 0) {
     return 'https://placehold.co/600x800/e2e8f0/1e293b?text=Нет+изображения'
   }
-  return door.value.imageUrls[currentImageIndex.value]
+  return filteredImages.value[currentImageIndex.value]
+})
+
+const filteredImages = computed(() => {
+  if (!door.value?.imageUrls) return []
+  return door.value.imageUrls.filter(url => 
+    !url.includes('double_ring') && 
+    !url.includes('photo_coming_soon')
+  )
 })
 
 const formattedPrice = computed(() => {
@@ -285,6 +313,12 @@ const addToCart = (item: Door) => {
     cartItems.push(item)
     localStorage.setItem('cart', JSON.stringify(cartItems))
     showAlert('Товар добавлен в корзину', 'success')
+    
+    // Dispatch event to update cart count in header
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'cart',
+      newValue: localStorage.getItem('cart')
+    }))
   } else {
     showAlert('Товар уже в корзине', 'info')
   }
@@ -318,12 +352,13 @@ const submitMeasurementForm = async (formData: MeasurementFormData) => {
   try {
     await $fetch('/api/measurement-requests', {
       method: 'POST',
+      baseURL: 'https://doors-shop-backend-production.up.railway.app',
       body: {
         doorId: door.value?.id,
         ...formData
       }
     })
-    showAlert('Заявка на замер успешно отправлена', 'success')
+    showAlert('Ваш заказ на замер поступил в обработку. Скоро с вами свяжутся.', 'success')
     showMeasurementForm.value = false
   } catch (error) {
     showAlert('Ошибка при отправке заявки', 'error')
@@ -334,6 +369,7 @@ const submitCallbackForm = async (formData: CallbackFormData) => {
   try {
     await $fetch('/api/callback-requests', {
       method: 'POST',
+      baseURL: 'https://doors-shop-backend-production.up.railway.app',
       body: {
         doorId: door.value?.id,
         ...formData
@@ -349,7 +385,7 @@ const submitCallbackForm = async (formData: CallbackFormData) => {
 // Lifecycle
 onMounted(async () => {
   await loadDoor()
-  loadRecentlyViewed()
+  await loadRecentlyViewed()
   
   // Check if door is in favorites
   const favorites = JSON.parse(localStorage.getItem('favorites') || '[]') as Door[]
